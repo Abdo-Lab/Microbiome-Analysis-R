@@ -44,46 +44,94 @@ bar.taxa.sample.ftn = function(d.df,cutoff=0,xlab="Sample",llab="OTU"){
 ## that includes either 2 columns (the first is a treatment level and the second is the sample names) or
 ## 3 columns (first two columns include treatment levels for two factors and last includes sample names)
 bar.sample.trt.ftn = function(data,Trt, cutoff=0.01, title="Experiment",xlab="Sample",llab="OTU"){
-  ln = length(data[,1])
-  p.df = data/apply(data,1,sum)
-  nm = colnames(p.df)
-  if(cutoff > 0){
-    cut.b = apply(p.df,2,function(x)sum(x>cutoff))
-    p.df = p.df[,cut.b > 0]
-    p.rs = apply(p.df,1,sum)
-    p.df = p.df/p.rs
-  }
-  nm.trt = colnames(Trt)
-  hist.df = sp = w = c()
-  for(j in 1:length(p.df[1,])){
-    sp = c(sp,rep(nm[j],ln))
-    w = c(w,p.df[,j])
-    hist.df = rbind(hist.df,Trt)
-  }
-  hist.df = data.frame(hist.df,sp,w)
-  names(hist.df) = c(nm.trt,"sp","w")
-  if(length(hist.df[1,]) == 4){
-    ### one treatment + samples
-    hist.df = hist.df[order(hist.df[,1],hist.df[,2]),]
-    print(ggplot(data=hist.df,aes(x=hist.df[,2],fill = hist.df[,3]))
-          +geom_bar(aes(weight=hist.df[,4]),color="white",linetype=1)
-          +facet_wrap(~hist.df[,1],scales = "free")
+  lt = length(Trt[1,])
+  nm = colnames(data)
+  # reducing the plot df using the lowest treatment
+  trt.ls = list()
+  for(i in 1:lt) trt.ls[[i]] = levels(factor(Trt[,i]))
+  if(lt == 2){
+    trt = p.df = c()
+    for(i in 1:length(trt.ls[[1]])){
+      for(j in 1:length(trt.ls[[2]])){
+        trt1 = c(trt.ls[[1]][i],trt.ls[[2]][j])
+        p.df = rbind(p.df, apply(data[Trt[,1]==trt.ls[[1]][i]&Trt[,2]==trt.ls[[2]][j],],2,sum)) 
+        trt = rbind(trt,trt1)
+      }
+    }
+    colnames(trt) = c("trt1","trt2")
+    Trt = trt
+    colnames(p.df) = nm
+    ln = length(p.df[,1])
+    p.df = p.df/apply(p.df,1,sum)
+    if(cutoff > 0){
+      cut.b = apply(p.df,2,function(x)sum(x>cutoff))
+      p.df = p.df[,cut.b > 0]
+      p.rs = apply(p.df,1,sum)
+      p.df = p.df/p.rs
+    }
+    nm.trt = colnames(Trt)
+    hist.df = sp = w = c()
+    for(j in 1:length(p.df[1,])){
+      sp = c(sp,rep(nm[j],ln))
+      w = c(w,p.df[,j])
+      hist.df = rbind(hist.df,Trt)
+    }
+    trt1 = factor(hist.df[,1])
+    trt2 = factor(hist.df[,2])
+    hist.df = data.frame(trt1,trt2,sp,w)
+    hist.df = hist.df[order(hist.df$trt1,hist.df$trt2),]
+    print(ggplot(data=hist.df,aes(x=trt2,fill = sp))
+          +geom_bar(aes(weight=w),color="white",linetype=1)
+          +facet_wrap(~trt1,scales = "free")
+          +labs(title=title,colour=llab,x=xlab,y="Proportion")
+          +scale_fill_discrete(name = llab)          
+          +theme_minimal()
+          +guides(fill=guide_legend(ncol=1))
+          +theme(axis.text.x=element_text(angle=90)))
+  }else if(lt==3){
+    trt = p.df = c()
+    for(i in 1:length(trt.ls[[1]])){
+      for(j in 1:length(trt.ls[[2]])){
+        for(k in 1:length(trt.ls[[3]])){
+          trt1 = c(trt.ls[[1]][i],trt.ls[[2]][j],trt.ls[[3]][k])
+          p.df = rbind(p.df, apply(data[Trt[,1]==trt.ls[[1]][i]&Trt[,2]==trt.ls[[2]][j]&Trt[,3]==trt.ls[[3]][k],],2,sum)) 
+          trt = rbind(trt,trt1)
+        }
+      }
+    }
+    colnames(trt) = c("trt1","trt2","trt3")
+    Trt = trt
+    colnames(p.df) = nm
+    ln = length(p.df[,1])
+    p.df = p.df/apply(p.df,1,sum)
+    if(cutoff > 0){
+      cut.b = apply(p.df,2,function(x)sum(x>cutoff))
+      p.df = p.df[,cut.b > 0]
+      p.rs = apply(p.df,1,sum)
+      p.df = p.df/p.rs
+    }
+    nm.trt = colnames(Trt)
+    hist.df = sp = w = c()
+    for(j in 1:length(p.df[1,])){
+      sp = c(sp,rep(nm[j],ln))
+      w = c(w,p.df[,j])
+      hist.df = rbind(hist.df,Trt)
+    }
+    trt1 = factor(hist.df[,1])
+    trt2 = factor(hist.df[,2])
+    trt3 = factor(hist.df[,3])
+    hist.df = data.frame(trt1,trt2,trt3,sp,w)
+    hist.df = hist.df[order(hist.df$trt1,hist.df$trt2,hist.df$trt3),]
+    print(ggplot(data=hist.df,aes(x=trt3,fill=sp))
+          +geom_bar(aes(weight=w),color="white",linetype=1)
+          +facet_wrap(trt1~trt2,scales = "free")
           +labs(title=title,colour=llab,x=xlab,y="Proportion")
           +scale_fill_discrete(name = llab)          
           +theme_minimal()
           +guides(fill=guide_legend(ncol=1))
           +theme(axis.text.x=element_text(angle=90)))
   }else{
-    ### two treatments + samples
-    hist.df = hist.df[order(hist.df[,1],hist.df[,2],hist.df[,3]),]
-    print(ggplot(data=hist.df,aes(x=hist.df[,3],fill=hist.df[,4]))
-          +geom_bar(aes(weight=hist.df[,5]),color="white",linetype=1)
-          +facet_wrap(hist.df[,1]~hist.df[,2],scales = "free")
-          +labs(title=title,colour=llab,x=xlab,y="Proportion")
-          +scale_fill_discrete(name = llab)          
-          +theme_minimal()
-          +guides(fill=guide_legend(ncol=1))
-          +theme(axis.text.x=element_text(angle=90)))
+    print("Too many treatment levels")
   }
 }
 
