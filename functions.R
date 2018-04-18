@@ -60,9 +60,13 @@ bar.sample.trt.ftn = function(data,Trt, cutoff=0.01, title="Experiment",xlab="Sa
     }
     colnames(trt) = c("trt1","trt2")
     Trt = trt
+    rs.vt = apply(p.df,1,sum)
+    Trt = Trt[rs.vt > 0, ]
+    p.df = p.df[rs.vt > 0, ]
+    rs.vt = rs.vt[rs.vt>0]
     colnames(p.df) = nm
     ln = length(p.df[,1])
-    p.df = p.df/apply(p.df,1,sum)
+    p.df = p.df/rs.vt
     if(cutoff > 0){
       cut.b = apply(p.df,2,function(x)sum(x>cutoff))
       p.df = p.df[,cut.b > 0]
@@ -101,9 +105,13 @@ bar.sample.trt.ftn = function(data,Trt, cutoff=0.01, title="Experiment",xlab="Sa
     }
     colnames(trt) = c("trt1","trt2","trt3")
     Trt = trt
+    rs.vt = apply(p.df,1,sum)
+    Trt = Trt[rs.vt > 0, ]
+    p.df = p.df[rs.vt > 0, ]
+    rs.vt = rs.vt[rs.vt>0]
     colnames(p.df) = nm
     ln = length(p.df[,1])
-    p.df = p.df/apply(p.df,1,sum)
+    p.df = p.df/rs.vt
     if(cutoff > 0){
       cut.b = apply(p.df,2,function(x)sum(x>cutoff))
       p.df = p.df[,cut.b > 0]
@@ -121,7 +129,7 @@ bar.sample.trt.ftn = function(data,Trt, cutoff=0.01, title="Experiment",xlab="Sa
     trt2 = factor(hist.df[,2])
     trt3 = factor(hist.df[,3])
     hist.df = data.frame(trt1,trt2,trt3,sp,w)
-    hist.df = hist.df[order(hist.df$trt1,hist.df$trt2,hist.df$trt3),]
+    #hist.df = hist.df[order(hist.df$trt1,hist.df$trt2,hist.df$trt3),]
     print(ggplot(data=hist.df,aes(x=trt3,fill=sp))
           +geom_bar(aes(weight=w),color="white",linetype=1)
           +facet_wrap(trt1~trt2,scales = "free")
