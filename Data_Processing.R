@@ -87,7 +87,7 @@ meta.df = read.table(file="samples.files",header=FALSE,as.is = TRUE)
 #### that equal to the sample names (these should exactly match the row names of the transfomred d.df)
 #### remember columns of d.df (and data.df) is linked to rows t.df (and taxa.df) by otu names and rows of d.df (and data.df) and 
 #### rows of meta.df are linked by the sample names
-meta.df = data.frame(meta.df,row.names=meta.df[,3])
+meta.df = data.frame(meta.df[,1],row.names=meta.df[,1])
 #### life is made easier if both meta.df and d.df have the same sample-name order. First column still has sample names 
 #### (row names are also sample names)
 d.df = d.df[row.names(meta.df),]
@@ -97,22 +97,18 @@ d.df = d.df[row.names(meta.df),]
 #### only the lines that do not include line 10 (-10 in the first index). We take these lines away from both the d.df and meta.df
 #### we match by row
 d.df = d.df[row.names(d.df)!="Mock",]
-meta.df = meta.df[row.names(d.df),]
+meta.df = meta.df[row.names(d.df),,drop=FALSE]
 #### Now create the experimental design (can do this in excel)
 #### We have two treatments A (for eaxmple "Sick") and B (for example "Control")
 #### We have 9 samples we claim that 5 belong to level A (sick) and 4 belong to level B (Control)
 #### we create a new variable "trt" that represents treatment "trt"
-#trt = c(rep("A",5),rep("B",4))
+trt = c(rep("A",5),rep("B",4))
 #### we make it be a factor using as.factor (or factor)
-#trt = as.factor(trt)
+trt = as.factor(trt)
 #### and add it in a new column (the last column) that is called trt (click on meta.df after the next step to see what happened)
-#meta.df$trt = trt
-#### The original meta.df table had three columns (col 1: sample names, col 2 R1 file names and col 3 R2 file names)
-#### This new one has 4 columns with column 4 including the treatment levels (trt)
-#### We choose to keep only columns 1 and 4 and we make column 4 go before column 1 so that the last column includes sample names
-#meta.df = meta.df[,c(1,2)]
+meta.df$trt = trt
 #### We rename the columns to "trt" and "id" (sample id)
-colnames(meta.df) = c("trt1","trt2","id")
+colnames(meta.df) = c("trt","id")
 
 #### Now data is clean and well organized and we replace data.df with d.df and taxa.df with t.df (we didn't do this earlier 
 #### to avoid loading the data incase we made a mistake)
@@ -129,4 +125,4 @@ data.ps = phyloseq(otu_table(data.df,taxa_are_rows = FALSE),tax_table(as.matrix(
 
 #### All what we need to keep at this point are the data.df, taxa.df and meta.df data frames along with the 
 #### phyloseq container data.ps, so we remove the rest
-rm(d.cs,r.nm,otu.nm,d.df,t.df,taxa.phs)
+rm(d.cs,r.nm,otu.nm,d.df,t.df,taxa.phs,trt)
