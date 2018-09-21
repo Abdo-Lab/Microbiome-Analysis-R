@@ -7,7 +7,10 @@
 
 #install.packages(c("pheatmap","vegan","ggplot2","cluster","NbClust"
 #                 ,"gplots","devtools","RColorBrewer","corrgram",
-#                 "grid","fdrtool","vegan3d","rgl"))
+#                 "fdrtool","vegan3d","rgl"))
+
+#install.packages(c("pheatmap","vegan","ggplot2","gplots","corrgram","vegan3d","rgl"))
+
 
 #### Use library() to load the packages you installed from CRAN
 ## pheatmap: creates heatmaps with clustering package and is used in the 
@@ -25,8 +28,6 @@ library(grid)
 ## in Analysis-Normalizatiopn-Ordination.R (see description there)
 library(vegan3d)
 library(rgl)
-## fdrtool: a package sto adjust for false discovery rate (FDR) in data analysis
-library(fdrtool)
 
 ######## Bioconductor
 #### Use source to install bioclite.R which will allow you to load packages from Bioconductor
