@@ -42,15 +42,15 @@ for(i in 1:length(rich.nm)){
   rich.plt = rbind(rich.plt,cbind(meta.df,rich,rich.df[,i]))
 }
 #### We rename the new columns to reflect what they are (click on rich.plt after the next step to see what you have)
-colnames(rich.plt) = c("trt","sample","rich","value")
+colnames(rich.plt) = c("sample","trt","rich","value")
 
 #### We create a new .pdf file
-pdf(file="diversity.pdf",width=10,height = 10)
+pdf(file="diversity.pdf",width=5,height = 5)
 #### qplot() is a function in ggplot2
 #### We plot the diversity measures that are in rich.plt (data=rich.plt)
 #### x axes is the treatment level, y axes is the diversity values and the type of plot is the geom and is a boxplot
 #### Then we facet (split) the plots by diversity measure. 
-qplot(data=rich.plt, x = trt, y = value, geom="boxplot")+facet_grid(~rich,scale="free")
+qplot(data=rich.plt, x = trt, y = value, geom="boxplot")+facet_wrap(~rich,scale="free")
 #### save
 dev.off()
 

@@ -48,7 +48,7 @@ norm.mt = t(norm.mt)
 ###### Nonmetric Multidimesional Scaling (NMDS)
 #### We want to create an NMDS ordination plot and distinguish samples that belong to the different treatment levels (A and B)
 #### We extract the treatment levels (column 1 from meta.df) and put this in a new vector called Trt
-Trt = meta.df[,1]
+Trt = meta.df$trt
 #### We make sure that these treatment levels are factors
 Trt = factor(Trt)
 #### We create a new .pdf file
@@ -60,7 +60,7 @@ pdf(file="partial-ordiplot-otu-norm.pdf",width=10,height=10)
 #### plot type is number 7 (see function in functions.R),
 #### font size 1 (cex=1), line width 2 (lwd=2) and distance measure is bray-curtis (distance = "bray")
 #### you can change type, cex and lwd to make the plot look nice
-ord.plot.ftn(d.df=norm.mt,Trt=Trt,title="NMDS plot",x=c(-0.5,0.5),y=c(-0.5,0.5),type=7,cex=1,lwd=2,distance="bray")
+ord.plot.ftn(d.df=norm.mt,Trt=Trt,title="NMDS plot",x=c(-0.5,0.5),y=c(-0.5,0.5),type=3,cex=1,lwd=2,distance="bray")
 #### save
 dev.off()
 
@@ -73,13 +73,15 @@ ord <- metaMDS(norm.mt,distance="bray",k=3,try=100,trymax=10000)
 open3d()
 #### We plot the data points coming from the ord (the ordination object), with x, y, and z axes in black (ax.col="black)
 #### and plot the points using type text (type = "t") and tips that describe the treatment levels (text = c(rep("A",5),rep("B",4)))
-ordirgl(ord,ax.col="black",type="t",text= meta.df[,1])
+ordirgl(ord,ax.col="black",type="t",text= meta.df$trt)
 #### We try and plot an elipsoide per treatment level (groups=Trt) and using the standard error (kind ="se")
 #### with confidence region at 0.9 (conf = 0.9), and we shade (type = "shade") with colors "red" and "blue"
 #### and make the shades transparent (not solid) with alpha = 0.25
 orglellipse(ord,groups=Trt, kind = "se", conf = 0.9,type="shade",col=c("red","blue"),alpha=0.25)
 #### We also plot spider or ray lines centered on the centroid of the 3D plot using ordspider()
 orglspider(ord,groups=Trt,col=c("red","blue"))
+#### Saving the plot you like
+rgl.snapshot(filename="figures/ordiplot-3d-fecal-all.png", fmt = "png", top = TRUE )
 
 
 ####### Creating heatmaps and clustering on the otu level
@@ -91,7 +93,7 @@ row.clus <- hclust(data.dist, "aver")
 
 #### we cluster and create a heatmap using heatmap.2 from gplots package
 ## we create a vector with colors that we will identify the treatment levels by
-trt1 = c(rep("deepskyblue",9),rep("magenta",10))
+trt1 = c(rep("deepskyblue",5),rep("magenta",4))
 ## create a .pdf file
 pdf(file="heatmap.pdf",height = 10,width=10)
 ## plot a heatmap and clustering using heatmap.2 using the transformed normalized data (t(norm.mt,[1:20])
@@ -105,9 +107,9 @@ dev.off()
 
 #### We cluster and plot a heatmap using pheatmap
 ## first we need our treatment levels that come from the meta.df data frame 
-Trt = meta.df
+Trt = meta.df[,c(2,1)]
 ## create a .pdf file
-pdf(file="pheatmap.pdf",width=10,height=15)
+pdf(file="pheatmap.pdf",width=10,height=10)
 ## use function pheatmap.3.ftn (from functions.R) to create a heatmap using the transformed normalzed matrix
 ## (t(norm.mt)) and treatment lvels found in Trt, assume number of clusters to be 3 (cutoff=3; and you can change this)
 ## cluster the samples using the above clustering (col.clust=row.clus), deside on cell height and width (cellh=3, cellw=10),
@@ -123,12 +125,12 @@ data.df.nrm = data.frame(norm.mt)
 #### choosing only the taxa observed in the normalized data to include in the phyloseq container
 taxa.mt.nrm = as.matrix(taxa.df[colnames(data.df.nrm),])
 #### the experimental data didn't change so we ad it as is
-data.ps = phyloseq(otu_table(data.df.nrm,taxa_are_rows = FALSE),tax_table(taxa.df.nrm),sample_data(meta.df))
+data.ps = phyloseq(otu_table(data.df.nrm,taxa_are_rows = FALSE),tax_table(taxa.mt.nrm),sample_data(meta.df))
 
 #### Reduce the normalized data to the family level and extract the new data, taxa, and experimental design
 data.ps.nrm.f = tax_glom(data.ps,"family")
 data.df.nrm.f = data.frame(otu_table(data.ps.nrm.f))
-taxa.df.nrm.f = data.frame(tax_table(data.ps.nrm.f))
+taxa.df.nrm.f = data.frame(tax_table(data.ps.nrm.f)[,1:5])
 colnames(data.df.nrm.f) = taxa.df.nrm.f$family
 meta.df.nrm.f = data.frame(sample_data(data.ps.nrm.f))
 norm.mt.f = as.matrix(data.df.nrm.f)
@@ -138,7 +140,7 @@ data.dist <- vegdist(norm.mt.f, method = "bray")
 row.clus <- hclust(data.dist, "aver")
 
 ### draw the heatmap and clustering using pheatmap (see above) on the family level
-Trt = meta.df.nrm.f
-pdf(file="pheatmap.pdf",width=5,height=5)
+Trt = meta.df.nrm.f[,c(2,1)]
+pdf(file="pheatmap-family.pdf",width=5,height=5)
 pheatmap.3.ftn(d.df = t(norm.mt.f),trt.df = Trt,cutoff = 3,col.clust = row.clus,cellh = 5,cellw = 10,fonts = 7)
 dev.off()

@@ -56,7 +56,7 @@ pdf(file="barplots-per-treatment-otu.pdf",width=10,height=10)
 ## use bar.sample.trt.ftn() (full description in "functions.R") to provide bar plot per treatment level (A and B here)
 ## using data.df, and the experimental design (first column here must be treatment level and last column must be sample id)
 ## we also use a per sample cutoff of 1%. We call the figure "Barplot", the x label "Sample" and the y label "OTU"
-bar.sample.trt.ftn(data=data.df,Trt=meta.df,cutoff = 0.01, title = "Barplot",xlab = "Sample",llab = "OTU")
+bar.sample.trt.ftn(data=data.df,Trt=meta.df[,c(2,1)],cutoff = 0.01, title = "Barplot",xlab = "Sample",llab = "OTU")
 ## save file
 dev.off()
 
@@ -69,7 +69,7 @@ data.ps.f = tax_glom(data.ps,"family")
 #### We extract the new collapsed otu table and put it into a new data frame data.df.f using function otu_table in phyloseq 
 data.df.f = data.frame(otu_table(data.ps.f))
 #### We extract the new taxonomy table and save it in a new data frame taxa.df.f using function tax_table in phyloseq
-taxa.df.f = data.frame(tax_table(data.ps.f))
+taxa.df.f = data.frame(tax_table(data.ps.f)[,1:5])
 #### We rename the columns of the data.df.f from otu00001, otu00004, ... to the family names
 colnames(data.df.f) = taxa.df.f$family
 #### We also extract the experimental design (which will not change) into data.df.f using function sample_data in phyloseq
@@ -83,6 +83,6 @@ bar.taxa.sample.ftn(d.df=data.df.f,cutoff = 0.01,llab = "Family")
 dev.off()
 
 ## Create a barplot per treatment (A and B here) at the family level (see above)
-pdf(file="barplots-per-treatment-family.pdf",width=10,height=10)
-bar.sample.trt.ftn(data=data.df.f,Trt=meta.df.f,cutoff = 0.01, title = "Barplot",xlab = "Sample",llab = "Family")
+pdf(file="barplots-per-treatment-family.pdf",width=5,height=5)
+bar.sample.trt.ftn(data=data.df.f,Trt=meta.df.f[,c(2,1)],cutoff = 0.01, title = "Barplot",xlab = "Sample",llab = "Family")
 dev.off()
